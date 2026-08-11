@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Nifty 50 Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <div>
+          <h1>Nifty 50 Dashboard</h1>
+          <p>Live view of the public Google Sheet layout for Nifty 50 symbols.</p>
+        </div>
+        <div class="meta">
+          <span>Data source: public Google Sheet</span>
+          <a href="https://docs.google.com/spreadsheets/d/1Q6Nz14ts-4hh2-KkqIPp_mCuVIpqHedHBMNU1UCvRe8/edit?usp=sharing" target="_blank" rel="noreferrer noopener">Open sheet</a>
+        </div>
+      </header>
+
+      <section class="controls">
+        <div class="control-group">
+          <label for="searchInput">Search</label>
+          <input id="searchInput" type="search" placeholder="Search symbol, swing, anniversary" />
+        </div>
+        <div class="control-group">
+          <label for="swingFilter">Swing</label>
+          <select id="swingFilter">
+            <option value="">All</option>
+            <option value="Buy">Buy</option>
+            <option value="Sell">Sell</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="filterYear">Year</label>
+          <select id="filterYear">
+            <option value="">All</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="table-wrapper">
+        <table id="dataTable">
+          <thead>
+            <tr id="tableHeaderRow"></tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </section>
+    </main>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -158,3 +158,18 @@ td {
     text-align: left;
   }
 }
+
+.status {
+  margin-bottom: 20px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: #eff5ff;
+  color: #0f3f91;
+  border: 1px solid rgba(0, 87, 255, 0.16);
+}
+
+.status.error {
+  background: #ffefef;
+  color: #8c1212;
+  border-color: rgba(216, 59, 1, 0.16);
+}

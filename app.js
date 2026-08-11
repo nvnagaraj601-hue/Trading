@@ -2,6 +2,8 @@ const tableHeaderRow = document.getElementById('tableHeaderRow');
 const tableBody = document.getElementById('tableBody');
 const searchInput = document.getElementById('searchInput');
 const swingFilter = document.getElementById('swingFilter');
+const anniversaryHighFilter = document.getElementById('anniversaryHighFilter');
+const anniversaryLowFilter = document.getElementById('anniversaryLowFilter');
 const filterYear = document.getElementById('filterYear');
 
 const columns = [
@@ -76,6 +78,8 @@ function getUniqueYears(data) {
 function applyFilters() {
   const searchTerm = searchInput.value.trim().toLowerCase();
   const swingValue = swingFilter.value;
+  const anniversaryHighValue = anniversaryHighFilter.value;
+  const anniversaryLowValue = anniversaryLowFilter.value;
   const yearValue = filterYear.value;
 
   const filtered = NIFTY50_DATA.filter((row) => {
@@ -85,8 +89,10 @@ function applyFilters() {
     });
 
     const matchesSwing = !swingValue || String(row['Swing'] || '') === swingValue;
+    const matchesAnniversaryHigh = !anniversaryHighValue || String(row['Anniversary Signal High'] || '') === anniversaryHighValue;
+    const matchesAnniversaryLow = !anniversaryLowValue || String(row['Anniversary Signal Low'] || '') === anniversaryLowValue;
     const matchesYear = !yearValue || String(row['Year'] || '') === yearValue;
-    return matchesSearch && matchesSwing && matchesYear;
+    return matchesSearch && matchesSwing && matchesAnniversaryHigh && matchesAnniversaryLow && matchesYear;
   });
 
   renderRows(filtered);
@@ -105,6 +111,8 @@ function initializeFilters() {
 function attachEvents() {
   searchInput.addEventListener('input', applyFilters);
   swingFilter.addEventListener('change', applyFilters);
+  anniversaryHighFilter.addEventListener('change', applyFilters);
+  anniversaryLowFilter.addEventListener('change', applyFilters);
   filterYear.addEventListener('change', applyFilters);
 }
 

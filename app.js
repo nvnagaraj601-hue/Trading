@@ -9,9 +9,61 @@ const statusEl = document.getElementById('status');
 
 const sheetUrl = 'https://docs.google.com/spreadsheets/d/1Q6Nz14ts-4hh2-KkqIPp_mCuVIpqHedHBMNU1UCvRe8/export?format=csv&gid=935378781';
 const refreshIntervalMs = 120000; // 2 minutes
+const istOffsetMs = 5.5 * 60 * 60 * 1000; // IST = UTC + 5:30
 let refreshTimer = null;
 let sheetData = [];
 let eventsAttached = false;
+
+function getISTDate(date = new Date()) {
+  return new Date(date.getTime() + istOffsetMs);
+}
+
+function isWithinRefreshWindow(date = new Date()) {
+  const ist = getISTDate(date);
+  const hour = ist.getHours();
+  return hour >= 9 && hour < 16;
+}
+
+function getNextRefreshDelayMs(date = new Date()) {
+  const ist = getISTDate(date);
+  const nextIst = new Date(ist);
+  nextIst.setHours(9, 0, 0, 0);
+
+  if (ist.getHours() >= 16) {
+    nextIst.setDate(nextIst.getDate() + 1);
+  }
+
+  return nextIst.getTime() - ist.getTime();
+}
+
+function scheduleNextRefresh() {
+  if (refreshTimer) {
+    clearTimeout(refreshTimer);
+  }
+
+  if (isWithinRefreshWindow()) {
+    setStatus('Data loaded. Next refresh in 2 minutes.');
+    refreshTimer = setTimeout(() => {
+      setStatus('Refreshing data automatically…');
+      loadSheetData();
+    }, refreshIntervalMs);
+    return;
+  }
+
+  const delayMs = getNextRefreshDelayMs();
+  const nextIst = getISTDate(new Date(Date.now() + delayMs));
+  const timeText = nextIst.toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+
+  setStatus(`Waiting for ${timeText} IST to refresh...`);
+  refreshTimer = setTimeout(() => {
+    setStatus('Refreshing data automatically…');
+    loadSheetData();
+  }, delayMs);
+}
 
 const columns = [
   'SYMBOL',
@@ -313,13 +365,7 @@ async function loadSheetData() {
     }
     renderRows(data);
 
-    if (refreshTimer) {
-      clearTimeout(refreshTimer);
-    }
-    refreshTimer = setTimeout(() => {
-      setStatus('Refreshing data automatically…');
-      loadSheetData();
-    }, refreshIntervalMs);
+    scheduleNextRefresh();
   } catch (error) {
     setStatus(`Unable to load sheet data: ${error.message}`, true);
     renderHeader();

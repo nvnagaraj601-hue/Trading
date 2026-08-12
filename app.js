@@ -72,34 +72,49 @@ function renderRows(data) {
 
   data.forEach((item, rowIndex) => {
     const tr = document.createElement('tr');
+    const isNoFormatRow = rowIndex >= 53 && rowIndex <= 56;
 
     // If this is the final row, mark it so we can style it
     if (rowIndex === data.length - 1) {
       tr.classList.add('final-row');
     }
 
+    // Remove formatting from rows 54-57 in the displayed table
+    if (isNoFormatRow) {
+      tr.classList.add('no-format-row');
+    }
+
+    // Bold displayed row 54 (zero-based index 53)
+    if (rowIndex === 53) {
+      tr.classList.add('row-54-bold');
+    }
+
     columns.forEach((column) => {
       const td = document.createElement('td');
       const value = item[column] || '';
-      // Render badges only for the canonical `Swing` (Monthly Swing) and anniversary signals
-      if (column === 'Swing' || column === 'Anniversary Signal High' || column === 'Anniversary Signal Low') {
+
+      if (isNoFormatRow) {
+        td.textContent = value;
+      } else if (column === 'Swing' || column === 'Anniversary Signal High' || column === 'Anniversary Signal Low') {
         td.appendChild(formatBadge(value || ''));
       } else {
         td.textContent = value;
       }
 
-      // Highlight CMP values in bold
-      if (column === 'CMP') {
+      // Highlight CMP values in bold, except on the plain row
+      if (!isNoFormatRow && column === 'CMP') {
         td.classList.add('col-cmp');
       }
-      // Color Anniversary Date cells by quarter
-      if (column === 'Anniversary Date' && value) {
+
+      // Color Anniversary Date cells by quarter, but not for the special no-format row
+      if (!isNoFormatRow && column === 'Anniversary Date' && value) {
         const monthIndex = getMonthIndex(value);
         if (monthIndex !== null) {
           const quarter = Math.floor(monthIndex / 3) + 1; // 1..4
           td.classList.add(`month-q${quarter}`);
         }
       }
+
       tr.appendChild(td);
     });
     tableBody.appendChild(tr);

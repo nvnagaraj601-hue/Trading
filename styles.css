@@ -125,6 +125,28 @@ tbody tr:hover {
   background: rgba(43, 124, 255, 0.04);
 }
 
+/* Alternating row colors (zebra striping) */
+tbody tr:nth-child(odd) {
+  background: #ffffff;
+}
+tbody tr:nth-child(even) {
+  background: #fbfdff;
+}
+
+/* Remove styling for the special no-format rows */
+tr.no-format-row {
+  background: transparent !important;
+}
+tr.no-format-row td {
+  background: transparent !important;
+  color: inherit;
+  font-weight: normal;
+}
+
+tr.row-54-bold td {
+  font-weight: 700 !important;
+}
+
 td {
   font-size: 0.92rem;
   color: var(--text);

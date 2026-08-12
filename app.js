@@ -36,15 +36,23 @@ function renderHeader() {
   tableHeaderRow.innerHTML = '';
   columns.forEach((column) => {
     const th = document.createElement('th');
-    th.textContent = column;
+    th.textContent = column === 'Swing' ? 'Monthly Swing' : column;
     tableHeaderRow.appendChild(th);
   });
 }
 
 function formatBadge(value) {
   const badge = document.createElement('span');
-  badge.className = 'badge ' + (value.toLowerCase() === 'buy' ? 'badge-buy' : 'badge-sell');
-  badge.textContent = value;
+  const v = String(value || '').trim();
+  if (!v) {
+    badge.className = 'badge badge-empty';
+    badge.textContent = '';
+    return badge;
+  }
+
+  const kind = v.toLowerCase() === 'buy' ? 'badge-buy' : 'badge-sell';
+  badge.className = 'badge ' + kind;
+  badge.textContent = v;
   return badge;
 }
 
@@ -62,20 +70,73 @@ function renderRows(data) {
     return;
   }
 
-  data.forEach((item) => {
+  data.forEach((item, rowIndex) => {
     const tr = document.createElement('tr');
+
+    // If this is the final row, mark it so we can style it
+    if (rowIndex === data.length - 1) {
+      tr.classList.add('final-row');
+    }
+
     columns.forEach((column) => {
       const td = document.createElement('td');
       const value = item[column] || '';
+      // Render badges only for the canonical `Swing` (Monthly Swing) and anniversary signals
       if (column === 'Swing' || column === 'Anniversary Signal High' || column === 'Anniversary Signal Low') {
         td.appendChild(formatBadge(value || ''));
       } else {
         td.textContent = value;
       }
+
+      // Highlight CMP values in bold
+      if (column === 'CMP') {
+        td.classList.add('col-cmp');
+      }
+      // Color Anniversary Date cells by quarter
+      if (column === 'Anniversary Date' && value) {
+        const monthIndex = getMonthIndex(value);
+        if (monthIndex !== null) {
+          const quarter = Math.floor(monthIndex / 3) + 1; // 1..4
+          td.classList.add(`month-q${quarter}`);
+        }
+      }
       tr.appendChild(td);
     });
     tableBody.appendChild(tr);
   });
+}
+
+// Try to extract a month index (0-11) from a variety of date formats
+function getMonthIndex(value) {
+  if (!value) return null;
+
+  // Try native Date parser first
+  const parsed = new Date(value);
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed.getMonth();
+  }
+
+  // Match month names (short or long)
+  const monthNames = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+  const mname = (value.match(/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i) || [])[0];
+  if (mname) {
+    return monthNames.indexOf(mname.toLowerCase().slice(0,3));
+  }
+
+  // Match numeric month in formats like 2026-03-15 or 03/15/2026
+  const numeric = value.match(/(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+  if (numeric && numeric[2]) {
+    const m = parseInt(numeric[2], 10);
+    if (!Number.isNaN(m) && m >= 1 && m <= 12) return m - 1;
+  }
+
+  const numeric2 = value.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{2,4})/);
+  if (numeric2 && numeric2[2]) {
+    const m = parseInt(numeric2[2], 10);
+    if (!Number.isNaN(m) && m >= 1 && m <= 12) return m - 1;
+  }
+
+  return null;
 }
 
 function getUniqueYears(data) {
@@ -110,17 +171,26 @@ function normalizeHeaders(headers) {
   return headers.map((header) => {
     const name = header.trim();
     counts[name] = (counts[name] || 0) + 1;
+    const lower = name.toLowerCase();
 
     if (name === 'NSE:SYMBOL') {
       return 'NSE_SYMBOL';
     }
 
-    if (name === 'Anniversary High') {
+    // Handle anniversary columns (first occurrence = signal, second = price)
+    if (lower.includes('anniversary') && lower.includes('high')) {
       return counts[name] === 1 ? 'Anniversary Signal High' : 'Anniversary Price High';
     }
 
-    if (name === 'Anniversary Low') {
+    if (lower.includes('anniversary') && lower.includes('low')) {
       return counts[name] === 1 ? 'Anniversary Signal Low' : 'Anniversary Price Low';
+    }
+
+    // Map any column that mentions "swing" to our canonical names
+    if (lower.includes('swing')) {
+      if (lower.includes('high')) return 'Swing High';
+      if (lower.includes('low')) return 'Swing Low';
+      return 'Swing';
     }
 
     return name;

@@ -1,14 +1,14 @@
 :root {
   color-scheme: light;
-  --bg: #f6f8fb;
+  --bg: #fbfdff;
   --surface: #ffffff;
-  --surface-strong: #eef2f7;
-  --border: #dce2ea;
-  --text: #172a3a;
-  --muted: #5f6f82;
-  --accent: #0057ff;
-  --accent-soft: #dce6ff;
-  --danger: #d83b01;
+  --surface-strong: #f7fbff;
+  --border: #e9f3ff;
+  --text: #0f2633;
+  --muted: #6b7b87;
+  --accent: #2b7cff;
+  --accent-soft: #e9f2ff;
+  --danger: #d9534f;
 }
 
 * {
@@ -93,7 +93,7 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 20px;
-  box-shadow: 0 14px 35px rgba(31, 41, 51, 0.08);
+  box-shadow: 0 10px 30px rgba(43, 124, 255, 0.06);
 }
 
 table {
@@ -103,7 +103,7 @@ table {
 }
 
 thead {
-  background: #f2f5fa;
+  background: #f6fbff;
 }
 
 th,
@@ -122,12 +122,48 @@ th {
 }
 
 tbody tr:hover {
-  background: rgba(0, 87, 255, 0.04);
+  background: rgba(43, 124, 255, 0.04);
 }
 
 td {
   font-size: 0.92rem;
   color: var(--text);
+}
+
+/* CMP column values should appear bold */
+.col-cmp {
+  font-weight: 700;
+}
+
+/* Final row should appear bold across all columns */
+tr.final-row td {
+  font-weight: 700;
+}
+
+/* Quarter color groups for Anniversary Date column */
+.month-q1 {
+  background: #e6f7ff;
+  color: #0f4ac5;
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+.month-q2 {
+  background: #e9fbe6;
+  color: #107a2e;
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+.month-q3 {
+  background: #fff4e6;
+  color: #c65a00;
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+.month-q4 {
+  background: #f6e9ff;
+  color: #5b2a86;
+  border-radius: 8px;
+  padding: 6px 8px;
 }
 
 .badge {
@@ -141,13 +177,22 @@ td {
 }
 
 .badge-buy {
-  background: #e6f2ff;
-  color: #0f4ac5;
+  background: #e9faf0;
+  color: #137a46;
 }
 
 .badge-sell {
-  background: #ffe8e4;
-  color: #a1240d;
+  background: #fff4f2;
+  color: #b33a2b;
+}
+
+.badge-empty {
+  background: transparent;
+  color: var(--muted);
+  box-shadow: none;
+  padding: 0;
+  border-radius: 0;
+  font-weight: 600;
 }
 
 @media (max-width: 720px) {
@@ -163,13 +208,19 @@ td {
   margin-bottom: 20px;
   padding: 14px 18px;
   border-radius: 16px;
-  background: #eff5ff;
-  color: #0f3f91;
-  border: 1px solid rgba(0, 87, 255, 0.16);
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid rgba(43, 124, 255, 0.12);
 }
 
 .status.error {
-  background: #ffefef;
-  color: #8c1212;
-  border-color: rgba(216, 59, 1, 0.16);
+  background: #fff4f4;
+  color: var(--danger);
+  border-color: rgba(217, 83, 79, 0.12);
 }
+
+/* Soften month quarter chips to pastel tones */
+.month-q1 { background: #f0fbff; color: #1a6fbf; }
+.month-q2 { background: #f3fff4; color: #1f7f3a; }
+.month-q3 { background: #fff9f0; color: #c06a12; }
+.month-q4 { background: #fbf0ff; color: #5b2a86; }

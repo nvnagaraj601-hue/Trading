@@ -5,6 +5,7 @@ const swingFilter = document.getElementById('swingFilter');
 const anniversaryHighFilter = document.getElementById('anniversaryHighFilter');
 const anniversaryLowFilter = document.getElementById('anniversaryLowFilter');
 const filterYear = document.getElementById('filterYear');
+const amountSort = document.getElementById('amountSort');
 const statusEl = document.getElementById('status');
 
 const sheetUrl = 'https://docs.google.com/spreadsheets/d/1Q6Nz14ts-4hh2-KkqIPp_mCuVIpqHedHBMNU1UCvRe8/export?format=csv&gid=935378781';
@@ -210,14 +211,23 @@ function getUniqueYears(data) {
   return Array.from(new Set(data.map((row) => row['Year'] || ''))).filter(Boolean).sort((a, b) => a.localeCompare(b));
 }
 
+function parseAmount(value) {
+  if (!value) return null;
+  const cleaned = String(value).replace(/[^0-9.-]/g, '').trim();
+  if (cleaned === '') return null;
+  const parsed = parseFloat(cleaned);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
 function applyFilters() {
   const searchTerm = searchInput.value.trim().toLowerCase();
   const swingValue = swingFilter.value;
   const anniversaryHighValue = anniversaryHighFilter.value;
   const anniversaryLowValue = anniversaryLowFilter.value;
   const yearValue = filterYear.value;
+  const amountSortValue = amountSort.value;
 
-  const filtered = sheetData.filter((row) => {
+  let filtered = sheetData.filter((row) => {
     const matchesSearch = searchTerm === '' || columns.some((column) => {
       const value = String(row[column] || '').toLowerCase();
       return value.includes(searchTerm);
@@ -229,6 +239,19 @@ function applyFilters() {
     const matchesYear = !yearValue || String(row['Year'] || '') === yearValue;
     return matchesSearch && matchesSwing && matchesAnniversaryHigh && matchesAnniversaryLow && matchesYear;
   });
+
+  if (amountSortValue) {
+    filtered = filtered.slice().sort((a, b) => {
+      const aValue = parseAmount(a['Amount']);
+      const bValue = parseAmount(b['Amount']);
+
+      if (aValue === null && bValue === null) return 0;
+      if (aValue === null) return 1;
+      if (bValue === null) return -1;
+
+      return amountSortValue === 'asc' ? aValue - bValue : bValue - aValue;
+    });
+  }
 
   renderRows(filtered);
 }
@@ -329,6 +352,7 @@ function attachEvents() {
   anniversaryHighFilter.addEventListener('change', applyFilters);
   anniversaryLowFilter.addEventListener('change', applyFilters);
   filterYear.addEventListener('change', applyFilters);
+  amountSort.addEventListener('change', applyFilters);
 }
 
 function setStatus(message, isError = false) {
